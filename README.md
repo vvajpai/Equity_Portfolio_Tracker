@@ -77,8 +77,6 @@ A Python-based automated system that tracks equity portfolio performance, stores
 ## 📈 Future Improvements
 
 - Streamlit dashboard
-- Broker API integration
-- Portfolio optimization engine
 
 ---
 
