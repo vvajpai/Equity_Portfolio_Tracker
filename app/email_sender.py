@@ -45,7 +45,7 @@ def format_email_body(df_display):
     """
     return html
 
-def send_email(df_display):
+def send_email(content):
     
     sender_email = os.getenv("SENDER_EMAIL")
     receiver_email = os.getenv("RECEIVER_EMAIL")
@@ -58,8 +58,17 @@ def send_email(df_display):
     msg["From"] = sender_email
     msg["To"] = receiver_email
     msg["Subject"] = subject
-    
-    body = format_email_body(df_display)
+
+    if hasattr(content, "to_html"):
+        body = format_email_body(content)
+    else:
+        body = f"""
+        <html>
+        <body>
+            <p>{content}</p>
+        </body>
+        </html>
+        """
     
     msg.attach(MIMEText(body, "html"))
     
