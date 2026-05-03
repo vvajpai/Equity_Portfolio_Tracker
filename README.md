@@ -1,5 +1,6 @@
-📊 Equity_Portfolio_Tracker
-A Python-based automated system that tracks equity portfolio performance, stores historical data, and sends daily email reports.
+📊 Equity Portfolio Tracker
+
+A Python-based automated system that tracks equity portfolio performance, stores historical market data in Supabase (PostgreSQL), and sends daily email reports.
 
 🚀 Features
 📈 Fetch real-time stock data using Yahoo Finance (yfinance)
@@ -35,34 +36,54 @@ python-dotenv
 
 📂 Project Structure
 app/
-  new_main.py
-  database.py
-  email_sender.py
-  market_holidays.py
-  run.py
-.env
-requirements.txt
-README.md
+│
+├── new_main.py                
+├── database.py          
+├── email_sender.py       
+├── market_holidays.py   
+├── runner.py             
+│
+├── .env                  
+├── requirements.txt
+└── README.md
 
 🗄️ Database
+
 The project uses Supabase PostgreSQL with two main tables:
 
-📌 portfolio: Stores active stocks in the portfolio.
-   ticker (TEXT, UNIQUE)
-   active (INT)
-   created_at (TIMESTAMP)
-   
-📌 daily_stock_data: Stores historical stock performance data.
-    ticker (TEXT)
-    date (DATE)
-    close_price (FLOAT)
-    price_change_pct (FLOAT)
-    volume_change_pct (FLOAT)
-    created_at (TIMESTAMP)
-    UNIQUE (ticker, date)
-  
+📌 portfolio
+
+Stores active stocks in the portfolio.
+
+ticker (TEXT, UNIQUE)
+active (INT)
+created_at (TIMESTAMP)
+📌 daily_stock_data
+
+Stores historical stock performance data.
+
+ticker (TEXT)
+date (DATE)
+close_price (FLOAT)
+price_change_pct (FLOAT)
+volume_change_pct (FLOAT)
+created_at (TIMESTAMP)
+UNIQUE (ticker, date)
+
+🔄 Workflow
+
+Load portfolio from Supabase
+Fetch latest stock data from Yahoo Finance
+Compute price & volume changes
+Store results in PostgreSQL (daily_stock_data)
+Generate HTML email report
+Send daily email to user
+Skip execution on NSE holidays
+
 📈 Future Improvements
-Streamlit dashboard
+
+📊 Streamlit dashboard for portfolio visualization
 
 📄 License
-MIT
+
+MIT License — free to use and modify
