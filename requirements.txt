@@ -3,3 +3,5 @@ yfinance>=0.2.30
 requests>=2.31.0
 python-dotenv>=1.0.0
 pandas-market-calendars>=4.3.0
+streamlit>=1.36.0
+
