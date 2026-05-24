@@ -4,26 +4,6 @@ from email_sender import send_email
 from market_holidays import get_holiday_set
 import pandas as pd
 
-
-def setup_portfolio():
-    print("Running initial setup...\n")
-
-    stocks = ["ADSL.NS", "SWSOLAR.NS", "BPCL.NS", "AWHCL.NS",
-        "VAIBHAVGBL.NS", "DEN.NS", "BORORENEW.NS",
-        "CANBK.NS", "HINDZINC.NS", "HAL.NS",
-        "TMPV.NS", "ANGELONE.NS"]
-
-    added, skipped = 0, 0
-
-    for stock in stocks:
-        if add_stock(stock):
-            added += 1
-        else:
-            skipped += 1
-
-    print(f"Setup complete → {added} added, {skipped} skipped\n")
-
-
 def run_daily_job():
     print("Running daily stock analysis...\n")
 
@@ -61,8 +41,6 @@ if __name__ == "__main__":
 
     today = pd.Timestamp.today().normalize()
     year = today.year
-    
-    #setup_portfolio()  # run only once
 
     holiday_set = get_holiday_set(year)
 
