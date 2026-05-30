@@ -1,4 +1,6 @@
 import re
+import time
+import hmac
 import pandas as pd
 import streamlit as st
 
@@ -23,6 +25,81 @@ st.markdown(
 )
 
 TICKER_PATTERN = re.compile(r"^[A-Z0-9.-]{1,20}$")
+SESSION_TIMEOUT_SECONDS = 8 * 60 * 60
+
+
+def get_auth_config() -> tuple[str, str]:
+    auth_cfg = st.secrets.get("auth", {})
+
+    username = str(auth_cfg.get("username", "")).strip()
+    password = str(auth_cfg.get("password", ""))
+    return username, password
+
+
+def verify_password(password_input: str) -> bool:
+    _, password = get_auth_config()
+    return bool(password) and hmac.compare_digest(password_input, password)
+
+
+def init_auth_state() -> None:
+    if "authenticated" not in st.session_state:
+        st.session_state.authenticated = False
+    if "auth_username" not in st.session_state:
+        st.session_state.auth_username = ""
+    if "last_auth_ts" not in st.session_state:
+        st.session_state.last_auth_ts = 0
+
+
+def is_session_valid() -> bool:
+    if not st.session_state.authenticated:
+        return False
+
+    now = int(time.time())
+    age = now - int(st.session_state.last_auth_ts)
+    return age <= SESSION_TIMEOUT_SECONDS
+
+
+def show_login() -> None:
+    cfg_username, cfg_password = get_auth_config()
+
+    st.title("Portfolio Login")
+    st.caption("Sign in to access your portfolio management portal.")
+
+    if not cfg_username or not cfg_password:
+        st.error(
+            "Authentication is not configured. Set [auth].username and [auth].password "
+            "in Streamlit Cloud Secrets."
+        )
+        st.stop()
+
+    with st.form("login_form", clear_on_submit=True):
+        username = st.text_input("Username")
+        password = st.text_input("Password", type="password")
+        login_clicked = st.form_submit_button("Login", type="primary", width="stretch")
+
+    if login_clicked:
+        user_ok = hmac.compare_digest(str(username).strip(), cfg_username)
+        password_ok = verify_password(password)
+
+        if user_ok and password_ok:
+            st.session_state.authenticated = True
+            st.session_state.auth_username = cfg_username
+            st.session_state.last_auth_ts = int(time.time())
+            st.rerun()
+        else:
+            st.error("Invalid username or password.")
+
+
+def require_authentication() -> None:
+    init_auth_state()
+
+    if is_session_valid():
+        st.session_state.last_auth_ts = int(time.time())
+        return
+
+    st.session_state.authenticated = False
+    show_login()
+    st.stop()
 
 
 def normalize_ticker(ticker: str) -> str:
@@ -46,6 +123,16 @@ def show_portfolio_table(portfolio: list[str]) -> None:
     df = pd.DataFrame({"Ticker": portfolio})
     st.dataframe(df, width="stretch", hide_index=True)
 
+
+require_authentication()
+
+with st.sidebar:
+    st.success(f"Logged in as: {st.session_state.auth_username}")
+    if st.button("Logout", width="stretch"):
+        st.session_state.authenticated = False
+        st.session_state.auth_username = ""
+        st.session_state.last_auth_ts = 0
+        st.rerun()
 
 st.title("Equity Portfolio Tracker Portal")
 st.caption("Add or remove stocks from your Supabase portfolio.")
