@@ -13,6 +13,7 @@ A Python-based automated system that tracks equity portfolio performance, stores
 - 📧 Generate HTML email reports
 - 🏦 Skip execution on NSE market holidays
 - ⚙️ Fully automated daily pipeline
+- 🌐 Streamlit web portal to add/remove portfolio stocks
 
 ---
 
